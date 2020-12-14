@@ -87,8 +87,8 @@ class ImageListDataset(DatasetFolder):
 def main(root_path, img_list, pil_transforms):
     import cv2
     import torchvision.transforms as transforms
-    from fsgan.utils.obj_factory import obj_factory
-    import fsgan.utils as utils
+    from utils.obj_factory import obj_factory
+    import utils as utils
     pil_transforms = [obj_factory(t) for t in pil_transforms] if pil_transforms is not None else []
     pil_transforms = transforms.Compose(pil_transforms)
     dataset = ImageListDataset(root_path, img_list, transform=pil_transforms)

@@ -15,8 +15,8 @@ import torchvision.models as models
 from tensorboardX import SummaryWriter
 import numpy as np
 from tqdm import tqdm
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils import utils
+from utils.obj_factory import obj_factory
+from utils import utils
 
 import torch.utils.model_zoo as model_zoo
 import importlib

@@ -7,15 +7,15 @@ from tqdm import tqdm
 from PIL import Image
 import torch
 import torchvision.transforms.functional as F
-from fsgan.data.landmark_transforms import Resize, generate_heatmaps
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils.img_utils import rgb2tensor
-from fsgan.utils.bbox_utils import scale_bbox, crop_img
+from data.landmark_transforms import Resize, generate_heatmaps
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.obj_factory import obj_factory
+from utils.img_utils import rgb2tensor
+from utils.bbox_utils import scale_bbox, crop_img
 from sklearn.neighbors import KDTree
-from fsgan.models.hopenet import Hopenet
-from fsgan.utils.bbox_utils import get_main_bbox
+from models.hopenet import Hopenet
+from utils.bbox_utils import get_main_bbox
 
 
 def process_image(fa, img, size=256):

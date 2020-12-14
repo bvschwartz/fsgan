@@ -3,7 +3,7 @@
 import math
 import numpy as np
 import cv2
-from fsgan.utils.bbox_utils import scale_bbox, crop_img
+from utils.bbox_utils import scale_bbox, crop_img
 
 
 # Adapted from: https://github.com/1adrianb/face-alignment/blob/master/face_alignment/utils.py

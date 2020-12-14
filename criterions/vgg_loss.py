@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models
-from fsgan.models.vgg import vgg19
+from models.vgg import vgg19
 
 
 # Adapted from https://github.com/NVIDIA/pix2pixHD/blob/master/models/networks.py

@@ -1,5 +1,5 @@
 from tensorboardX import SummaryWriter
-from fsgan.utils import utils
+from utils import utils
 
 
 class TensorBoardLogger(SummaryWriter):

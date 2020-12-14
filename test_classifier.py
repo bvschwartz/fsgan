@@ -14,8 +14,8 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 import numpy as np
 from tqdm import tqdm
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils import utils
+from utils.obj_factory import obj_factory
+from utils import utils
 import pandas as pd
 
 

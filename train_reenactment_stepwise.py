@@ -7,15 +7,15 @@ import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.utils as tutils
-import fsgan.data.landmark_transforms as landmark_transforms
+import data.landmark_transforms as landmark_transforms
 import numpy as np
 from tqdm import tqdm
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils import utils
-from fsgan.utils import img_utils
-from fsgan.utils import seg_utils
-from fsgan.loggers.tensorboard_logger import TensorBoardLogger
-from fsgan.utils.heatmap import LandmarkHeatmap
+from utils.obj_factory import obj_factory
+from utils import utils
+from utils import img_utils
+from utils import seg_utils
+from loggers.tensorboard_logger import TensorBoardLogger
+from utils.heatmap import LandmarkHeatmap
 
 
 def main(exp_dir, train_dir, val_dir=None, workers=4, iterations=None, epochs=(90,), start_epoch=None,

@@ -9,12 +9,12 @@ from tqdm import tqdm
 from PIL import Image
 import torch
 import torchvision.transforms.functional as F
-from fsgan.data.landmark_transforms import crop_img, scale_bbox, Resize, generate_heatmaps
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_from_video
-from fsgan.models.hopenet import Hopenet
+from data.landmark_transforms import crop_img, scale_bbox, Resize, generate_heatmaps
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.obj_factory import obj_factory
+from utils.video_utils import extract_landmarks_bboxes_euler_from_video
+from models.hopenet import Hopenet
 
 
 def process_image(fa, img, size=256):

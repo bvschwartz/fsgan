@@ -8,14 +8,14 @@ from tqdm import tqdm
 from glob import glob
 from PIL import Image
 import torch
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.bbox_utils import scale_bbox
-from fsgan.utils.seg_utils import blend_seg_pred
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_from_video
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_from_images
-from fsgan.models.hopenet import Hopenet
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.bbox_utils import scale_bbox
+from utils.seg_utils import blend_seg_pred
+from utils.obj_factory import obj_factory
+from utils.video_utils import extract_landmarks_bboxes_euler_from_video
+from utils.video_utils import extract_landmarks_bboxes_euler_from_images
+from models.hopenet import Hopenet
 from scipy.spatial import Delaunay
 from scipy.spatial import cKDTree
 

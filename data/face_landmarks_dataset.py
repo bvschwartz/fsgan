@@ -5,10 +5,10 @@ import cv2
 from PIL import Image
 import torch
 from torchvision.datasets.folder import default_loader
-from fsgan.data.image_list_dataset import ImageListDataset
-from fsgan.data.landmark_transforms import LandmarksTransform
-from fsgan.utils.obj_factory import obj_factory
-import fsgan.data.landmark_transforms as landmark_transforms
+from data.image_list_dataset import ImageListDataset
+from data.landmark_transforms import LandmarksTransform
+from utils.obj_factory import obj_factory
+import data.landmark_transforms as landmark_transforms
 
 
 def read_landmarks(landmarks_file):

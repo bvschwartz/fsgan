@@ -1,6 +1,6 @@
 """ Batch version of video to video face swapping. """
 
-import fsgan.inference.face_swap_video2video as face_swap_video2video
+importinference.face_swap_video2video as face_swap_video2video
 import os
 from glob import glob
 import traceback

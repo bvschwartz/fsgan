@@ -4,13 +4,13 @@ import face_alignment
 import cv2
 import numpy as np
 import torch
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.img_utils import create_pyramid
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
-from fsgan.models.hopenet import Hopenet
-from fsgan.utils.heatmap import LandmarkHeatmap
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.img_utils import create_pyramid
+from utils.obj_factory import obj_factory
+from utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
+from models.hopenet import Hopenet
+from utils.heatmap import LandmarkHeatmap
 
 
 def unnormalize(tensor, mean, std):

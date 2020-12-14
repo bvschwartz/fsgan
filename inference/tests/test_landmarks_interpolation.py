@@ -7,11 +7,11 @@ from tqdm import tqdm
 from PIL import Image
 import torch
 import torchvision.transforms.functional as F
-from fsgan.data.landmark_transforms import crop_img, scale_bbox, Resize, generate_heatmaps
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.obj_factory import obj_factory
-import fsgan.utils.estimate_pose as estimate_pose
+from data.landmark_transforms import crop_img, scale_bbox, Resize, generate_heatmaps
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.obj_factory import obj_factory
+import utils.estimate_pose as estimate_pose
 
 
 def process_image(fa, img, size=256):

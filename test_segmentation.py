@@ -13,8 +13,8 @@ import torch.utils as tutils
 import torchvision.transforms as transforms
 import numpy as np
 from tqdm import tqdm
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils import utils
+from utils.obj_factory import obj_factory
+from utils import utils
 from PIL import Image
 import scipy.misc as m
 

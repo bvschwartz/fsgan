@@ -1,4 +1,4 @@
-import fsgan.preprocess.video_landmark_keyframes as video_landmark_keyframes
+importpreprocess.video_landmark_keyframes as video_landmark_keyframes
 import os
 from glob import glob
 import traceback

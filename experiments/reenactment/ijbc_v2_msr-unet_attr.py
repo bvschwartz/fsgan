@@ -3,13 +3,13 @@ from functools import partial
 import torch.nn as nn
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
-from fsgan.data.face_landmarks_dataset import FacePairLandmarksDataset
-import fsgan.data.landmark_transforms as landmark_transforms
-from fsgan.models.res_unet_split import MultiScaleResUNet
-from fsgan.models.discriminators_pix2pix import MultiscaleDiscriminator
-from fsgan.criterions.vgg_loss import VGGLoss
-from fsgan.criterions.gan_loss import GANLoss
-from fsgan.train_reenactment_attr import main
+from data.face_landmarks_dataset import FacePairLandmarksDataset
+import data.landmark_transforms as landmark_transforms
+from models.res_unet_split import MultiScaleResUNet
+from models.discriminators_pix2pix import MultiscaleDiscriminator
+from criterions.vgg_loss import VGGLoss
+from criterions.gan_loss import GANLoss
+from train_reenactment_attr import main
 
 
 if __name__ == '__main__':

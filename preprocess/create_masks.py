@@ -7,12 +7,12 @@ import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.utils as tutils
-import fsgan.data.landmark_transforms as landmark_transforms
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils import utils
-from fsgan.utils.seg_utils import blend_seg_pred
-from fsgan.utils.img_utils import tensor2bgr
-from fsgan.utils.bbox_utils import scale_bbox
+import data.landmark_transforms as landmark_transforms
+from utils.obj_factory import obj_factory
+from utils import utils
+from utils.seg_utils import blend_seg_pred
+from utils.img_utils import tensor2bgr
+from utils.bbox_utils import scale_bbox
 
 
 def main(img_list, root=None, out_dir=None, seg_model_path=None, workers=4, iterations=None, batch_size=8, gpus=None,

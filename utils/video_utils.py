@@ -9,9 +9,9 @@ from tqdm import tqdm
 from PIL import Image
 from glob import glob
 import torchvision.transforms.functional as F
-from fsgan.utils.bbox_utils import get_main_bbox
-from fsgan.utils.img_utils import rgb2tensor
-from fsgan.utils.bbox_utils import scale_bbox, crop_img
+from utils.bbox_utils import get_main_bbox
+from utils.img_utils import rgb2tensor
+from utils.bbox_utils import scale_bbox, crop_img
 
 
 def extract_landmarks_bboxes_euler_from_video(video_path, face_pose, face_align=None, img_size=(224, 224),

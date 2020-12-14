@@ -1,6 +1,6 @@
 import torch.nn as nn
 import numpy as np
-from fsgan.utils.img_utils import create_pyramid
+from utils.img_utils import create_pyramid
 
 
 # Adapted from https://github.com/NVIDIA/pix2pixHD/blob/master/models/networks.py

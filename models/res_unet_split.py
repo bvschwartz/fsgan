@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from fsgan.utils.img_utils import create_pyramid
+from utils.img_utils import create_pyramid
 
 
 def make_conv_block(in_nc, out_nc, kernel_size=3, stride=1, padding=None, bias=False, padding_type='reflect',
@@ -383,7 +383,7 @@ class MultiScaleResUNet(nn.Module):
 
 
 def main(model='res_unet.ResUNet', res=(256,)):
-    from fsgan.utils.obj_factory import obj_factory
+    from utils.obj_factory import obj_factory
     model = obj_factory(model)
     if len(res) == 1:
         img = torch.rand(1, model.in_nc, res, res)

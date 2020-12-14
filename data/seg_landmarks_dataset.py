@@ -5,11 +5,11 @@ import cv2
 from PIL import Image
 import torch
 from torchvision.datasets.folder import default_loader
-from fsgan.data.image_list_dataset import ImageListDataset
-from fsgan.data.landmark_transforms import LandmarksTransform
-from fsgan.utils.obj_factory import obj_factory
-import fsgan.data.seg_landmark_transforms as seg_landmark_transforms
-from fsgan.utils.landmark_utils import heatmap2rgb
+from data.image_list_dataset import ImageListDataset
+from data.landmark_transforms import LandmarksTransform
+from utils.obj_factory import obj_factory
+import data.seg_landmark_transforms as seg_landmark_transforms
+from utils.landmark_utils import heatmap2rgb
 
 
 def read_landmarks(landmarks_file):
@@ -289,7 +289,7 @@ def main(dataset, pair_transforms=None, pil_transforms1=None, pil_transforms2=No
             # blend_bgr = blend[:, :, ::-1].copy()
 
             import torchvision.transforms as transforms
-            from fsgan.utils.seg_utils import blend_seg_label
+            from utils.seg_utils import blend_seg_label
             img1 = blend_seg_label(img1.unsqueeze(0), seg1.unsqueeze(0)).squeeze()
             img1 = unnormalize(img1, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
             img1 = transforms.ToPILImage()(img1)
@@ -301,7 +301,7 @@ def main(dataset, pair_transforms=None, pil_transforms1=None, pil_transforms2=No
 
             # Draw bounding box
             # import torchvision.transforms as transforms
-            # from fsgan.utils.bbox_utils import scale_bbox, crop_img
+            # from utils.bbox_utils import scale_bbox, crop_img
             # img1 = unnormalize(img1, [0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
             # img1 = transforms.ToPILImage()(img1)
             # img1 = np.array(img1)[:, :, ::-1].copy()

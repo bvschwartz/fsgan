@@ -3,7 +3,7 @@ import random
 import numpy as np
 import cv2
 from PIL import Image
-from fsgan.data.image_list_dataset import ImageListDataset
+from data.image_list_dataset import ImageListDataset
 from torchvision.datasets.folder import default_loader
 
 
@@ -232,7 +232,7 @@ class FacePairListDataset(FaceListDataset):
 def main(root_path, img_list, landmarks_list, bboxes_list, bbox_scale=1.0, align=True, pil_transforms=None,
          dataset_type='singles'):
     import torchvision.transforms as transforms
-    from fsgan.utils.obj_factory import obj_factory
+    from utils.obj_factory import obj_factory
     pil_transforms = [obj_factory(t) for t in pil_transforms] if pil_transforms is not None else []
     pil_transforms = transforms.Compose(pil_transforms)
 

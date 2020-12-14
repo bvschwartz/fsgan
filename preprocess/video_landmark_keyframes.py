@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 import random
 import utils
-from fsgan.models.hopenet import Hopenet
+from models.hopenet import Hopenet
 import torch
 
 

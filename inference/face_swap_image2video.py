@@ -1,5 +1,3 @@
-""" Single image to video face swapping. """
-
 import os
 import face_alignment
 import cv2
@@ -33,14 +31,11 @@ def process_image(fa, img, size=256):
 
 def unnormalize(tensor, mean, std):
     """Normalize a tensor image with mean and standard deviation.
-
     See :class:`~torchvision.transforms.Normalize` for more details.
-
     Args:
         tensor (Tensor): Tensor image of size (C, H, W) to be normalized.
         mean (sequence): Sequence of means for each channel.
         std (sequence): Sequence of standard deviations for each channely.
-
     Returns:
         Tensor: Normalized Tensor image.
     """
@@ -203,7 +198,7 @@ def main(source_path, target_path,
             output_filename = os.path.splitext(os.path.basename(source_path))[0] + '_' + \
                               os.path.splitext(os.path.basename(target_path))[0] + '.mp4'
             output_path = os.path.join(output_path, output_filename)
-        fourcc = cv2.VideoWriter_fourcc(*'avc1')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         if verbose == 0:
             if output_crop:
                 out_vid_size = (source_cropped_bgr.shape[1] * 3, source_cropped_bgr.shape[0])
@@ -290,7 +285,6 @@ def main(source_path, target_path,
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-
 if __name__ == "__main__":
     # Parse program arguments
     import argparse
@@ -302,15 +296,15 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--arch',
                         default='res_unet_split.MultiScaleResUNet(in_nc=71,out_nc=(3,3),flat_layers=(2,0,2,3),ngf=128)',
                         help='model architecture object')
-    parser.add_argument('-rm', '--reenactment_model', default='../weights/ijbc_msrunet_256_2_0_reenactment_v1.pth',
+    parser.add_argument('-rm', '--reenactment_model', default='./weights/ijbc_msrunet_256_2_0_reenactment_v1.pth',
                         metavar='PATH', help='path to face reenactment model')
-    parser.add_argument('-sm', '--seg_model', default='../weights/lfw_figaro_unet_256_2_0_segmentation_v1.pth',
+    parser.add_argument('-sm', '--seg_model', default='./weights/lfw_figaro_unet_256_2_0_segmentation_v1.pth',
                         metavar='PATH', help='path to face segmentation model')
-    parser.add_argument('-im', '--inpainting_model', default='../weights/ijbc_msrunet_256_2_0_inpainting_v1.pth',
+    parser.add_argument('-im', '--inpainting_model', default='./weights/ijbc_msrunet_256_2_0_inpainting_v1.pth',
                         metavar='PATH', help='path to face inpainting model')
-    parser.add_argument('-bm', '--blending_model', default='../weights/ijbc_msrunet_256_2_0_blending_v1.pth',
+    parser.add_argument('-bm', '--blending_model', default='./weights/ijbc_msrunet_256_2_0_blending_v1.pth',
                         metavar='PATH', help='path to face blending model')
-    parser.add_argument('-pm', '--pose_model', default='../weights/hopenet_robust_alpha1.pth', metavar='PATH',
+    parser.add_argument('-pm', '--pose_model', default='./weights/hopenet_robust_alpha1.pth', metavar='PATH',
                         help='path to face pose model')
     parser.add_argument('-pt1', '--pil_transforms1', nargs='+', help='first PIL transforms',
                         default=('landmark_transforms.FaceAlignCrop', 'landmark_transforms.Resize(256)',

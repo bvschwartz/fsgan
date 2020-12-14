@@ -8,14 +8,14 @@ from tqdm import tqdm
 from PIL import Image
 import torch
 import torch.nn.functional as F
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.seg_utils import blend_seg_pred
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
-from fsgan.models.hopenet import Hopenet
-from fsgan.utils.heatmap import LandmarkHeatmap
-from fsgan.utils.estimate_pose import rigid_transform_3D, matrix2angle, euler2mat
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.seg_utils import blend_seg_pred
+from utils.obj_factory import obj_factory
+from utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
+from models.hopenet import Hopenet
+from utils.heatmap import LandmarkHeatmap
+from utils.estimate_pose import rigid_transform_3D, matrix2angle, euler2mat
 
 
 def process_image(fa, img, size=256):

@@ -6,8 +6,8 @@ from PIL import Image
 import torch
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as F
-from fsgan.utils.bbox_utils import scale_bbox, crop_img, hflip_bbox
-from fsgan.utils.landmark_utils import generate_heatmaps, hflip_face_landmarks, align_crop
+from utils.bbox_utils import scale_bbox, crop_img, hflip_bbox
+from utils.landmark_utils import generate_heatmaps, hflip_face_landmarks, align_crop
 
 
 class LandmarksTransform(object):
@@ -338,10 +338,11 @@ class ComposePyramids(LandmarksTransform):
                     img, landmarks, bboxes = t(img, landmarks, bboxes)
             else:
                 if isinstance(img, list):
-                    for i in range(len(img)):
-                        img[i] = t(img[i])
+                    img[0] = t(img[0])
+                    #img, landmarks[0], bboxes[0] = t(img[0], landmarks[0], bboxes[0])
                 else:
                     img = t(img)
+                    #img = t(img)
 
         return img, landmarks, bboxes
 

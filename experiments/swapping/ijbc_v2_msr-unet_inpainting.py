@@ -3,14 +3,14 @@ from functools import partial
 import torch.nn as nn
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
-from fsgan.data.seg_landmarks_dataset import SegmentationLandmarksPairDataset
-import fsgan.data.seg_landmark_transforms as seg_landmark_transforms
-import fsgan.models.res_unet_split as res_unet_split
-import fsgan.models.res_unet as res_unet
-from fsgan.models.discriminators_pix2pix import MultiscaleDiscriminator
-from fsgan.criterions.vgg_loss import VGGLoss
-from fsgan.criterions.gan_loss import GANLoss
-from fsgan.train_inpainting import main
+from data.seg_landmarks_dataset import SegmentationLandmarksPairDataset
+import data.seg_landmark_transforms as seg_landmark_transforms
+import models.res_unet_split as res_unet_split
+import models.res_unet as res_unet
+from models.discriminators_pix2pix import MultiscaleDiscriminator
+from criterions.vgg_loss import VGGLoss
+from criterions.gan_loss import GANLoss
+from train_inpainting import main
 
 
 if __name__ == '__main__':

@@ -8,17 +8,17 @@ import torch.nn as nn
 import torch.nn.parallel
 import torch.utils as tutils
 import torchvision.utils as vutils
-import fsgan.data.seg_landmark_transforms as seg_landmark_transforms
+import data.seg_landmark_transforms as seg_landmark_transforms
 from tensorboardX import SummaryWriter
 import numpy as np
 import cv2
 from tqdm import tqdm
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils import utils
-from fsgan.utils import seg_utils
-from fsgan.utils import img_utils
-from fsgan.criterions.gan_loss import GANLoss
-from fsgan.loggers.tensorboard_logger import TensorBoardLogger
+from utils.obj_factory import obj_factory
+from utils import utils
+from utils import seg_utils
+from utils import img_utils
+from criterions.gan_loss import GANLoss
+from loggers.tensorboard_logger import TensorBoardLogger
 
 
 def main(exp_dir, train_dir, val_dir=None, workers=4, iterations=None, epochs=(90,), start_epoch=None,

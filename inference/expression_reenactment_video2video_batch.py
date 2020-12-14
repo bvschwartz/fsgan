@@ -1,6 +1,6 @@
 """ Batch version of expression only reenactment. """
 
-import fsgan.inference.expression_reenactment_video2video as expression_reenactment_video2video
+import inference.expression_reenactment_video2video as expression_reenactment_video2video
 import os
 from glob import glob
 import traceback

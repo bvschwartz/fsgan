@@ -1,5 +1,5 @@
 import torch
-from fsgan.utils.blur import GaussianSmoothing
+from utils.blur import GaussianSmoothing
 
 
 class LandmarkHeatmap(GaussianSmoothing):

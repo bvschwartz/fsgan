@@ -6,7 +6,7 @@ import numpy as np
 import subprocess
 import ffmpeg
 import cv2
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
+from utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
 
 
 def main(video_path, out_dir=None):

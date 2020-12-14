@@ -7,13 +7,13 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 import torch
-import fsgan.data.landmark_transforms as landmark_transforms
-import fsgan.utils.utils as utils
-from fsgan.utils.img_utils import create_pyramid
-from fsgan.utils.obj_factory import obj_factory
-from fsgan.utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
-from fsgan.utils.heatmap import LandmarkHeatmap
-from fsgan.models.hopenet import Hopenet
+import data.landmark_transforms as landmark_transforms
+import utils.utils as utils
+from utils.img_utils import create_pyramid
+from utils.obj_factory import obj_factory
+from utils.video_utils import extract_landmarks_bboxes_euler_3d_from_video
+from utils.heatmap import LandmarkHeatmap
+from models.hopenet import Hopenet
 
 
 def main(source_path, target_path,
