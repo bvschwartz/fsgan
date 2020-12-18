@@ -111,15 +111,22 @@ def main(source_path, target_path,
                              'transforms.Normalize(mean=[0.5,0.5,0.5],std=[0.5,0.5,0.5])'),
          output_path=None, min_radius=2.0, crop_size=256, reverse_output=False, verbose=0, output_crop=False,
          display=False):
+
+    print("torch set_grad_enabled")
     torch.set_grad_enabled(False)
+    print("torch set_grad_enabled done")
 
     # Initialize models
-    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False)
-    device, gpus = utils.set_device()
+    print("face_alignment init")
+    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False, device='cpu')
+    print("face_alignment init done")
+    device, gpus = utils.set_device(False, False)
+    print("device:", device, "gpus:", gpus)
 
     # Load face reenactment model
+    map_location = None
     Gr = obj_factory(arch).to(device)
-    checkpoint = torch.load(reenactment_model_path)
+    checkpoint = torch.load(reenactment_model_path, map_location=device)
     Gr.load_state_dict(checkpoint['state_dict'])
     Gr.train(False)
 
@@ -127,7 +134,7 @@ def main(source_path, target_path,
     if seg_model_path is not None:
         print('Loading face segmentation model: "' + os.path.basename(seg_model_path) + '"...')
         if seg_model_path.endswith('.pth'):
-            checkpoint = torch.load(seg_model_path)
+            checkpoint = torch.load(seg_model_path, map_location=device)
             Gs = obj_factory(checkpoint['arch']).to(device)
             Gs.load_state_dict(checkpoint['state_dict'])
         else:
@@ -142,7 +149,7 @@ def main(source_path, target_path,
     if seg_model_path is not None:
         print('Loading face inpainting model: "' + os.path.basename(inpainting_model_path) + '"...')
         if inpainting_model_path.endswith('.pth'):
-            checkpoint = torch.load(inpainting_model_path)
+            checkpoint = torch.load(inpainting_model_path, map_location=device)
             Gi = obj_factory(checkpoint['arch']).to(device)
             Gi.load_state_dict(checkpoint['state_dict'])
         else:
@@ -154,14 +161,14 @@ def main(source_path, target_path,
         Gi = None
 
     # Load face blending model
-    checkpoint = torch.load(blend_model_path)
+    checkpoint = torch.load(blend_model_path, map_location=device)
     Gb = obj_factory(checkpoint['arch']).to(device)
     Gb.load_state_dict(checkpoint['state_dict'])
     Gb.train(False)
 
     # Initialize pose
     Gp = Hopenet().to(device)
-    checkpoint = torch.load(pose_model_path)
+    checkpoint = torch.load(pose_model_path, map_location=device)
     Gp.load_state_dict(checkpoint['state_dict'])
     Gp.train(False)
 
@@ -187,7 +194,9 @@ def main(source_path, target_path,
 
     # Parse image paths
     source_img_paths = glob(os.path.join(source_path, '*.jpg'))
+    source_img_paths += glob(os.path.join(source_path, '*.png'))
     target_img_paths = glob(os.path.join(target_path, '*.jpg'))
+    target_img_paths += glob(os.path.join(target_path, '*.png'))
 
     # For each image in the source directory
     source_valid_frame_ind = 0

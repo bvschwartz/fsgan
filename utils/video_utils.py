@@ -283,18 +283,29 @@ def extract_landmarks_bboxes_euler_from_images(img_dir, face_pose, face_align=No
         face_align = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=True)
 
     #
-    cache_file = img_dir + '.pkl' if cache_file is None else cache_file
-    if not os.path.exists(cache_file):
-        frame_indices = []
-        landmarks = []
-        bboxes = []
-        eulers = []
+    #cache_file = img_dir + '.pkl' if cache_file is None else cache_file
+    #print('cache_file:', cache_file)
+    #if not os.path.exists(cache_file):
 
-        # Parse images
-        img_paths = glob(os.path.join(img_dir, '*.jpg'))
+    frame_indices = []
+    landmarks = []
+    bboxes = []
+    eulers = []
 
-        # For each image in the directory
-        for i, img_path in tqdm(enumerate(img_paths), unit='images', total=len(img_paths)):
+    # Parse images
+    img_paths = glob(os.path.join(img_dir, '*.jpg'))
+    img_paths += glob(os.path.join(img_dir, '*.png'))
+    print('img_paths:', img_paths)
+
+    # For each image in the directory
+    for i, img_path in tqdm(enumerate(img_paths), unit='images', total=len(img_paths)):
+
+        print('working on', i, img_path)
+        cache_file = img_path + '.pkl'
+        if not os.path.exists(cache_file):
+
+            #print('no cache file:', cache_file)
+
             img_bgr = cv2.imread(img_path)
             if img_bgr is None:
                 continue
@@ -321,6 +332,7 @@ def extract_landmarks_bboxes_euler_from_images(img_dir, face_pose, face_align=No
             scaled_frame_tensor = rgb2tensor(scaled_frame_rgb.copy()).to(device)
             curr_euler = face_pose(scaled_frame_tensor)  # Yaw, Pitch, Roll
             curr_euler = np.array([x.cpu().numpy() for x in curr_euler])
+            frame_index = i
 
             ### Debug ###
             # scaled_frame_bgr = scaled_frame_rgb[:, :, ::-1].copy()
@@ -329,30 +341,33 @@ def extract_landmarks_bboxes_euler_from_images(img_dir, face_pose, face_align=No
             # cv2.waitKey(1)
             #############
 
-            # Append to list
-            frame_indices.append(i)
-            landmarks.append(curr_landmarks)
-            bboxes.append(curr_bbox)
-            eulers.append(curr_euler)
+            # Save landmarks and bounding boxes to file
+            with open(cache_file, "wb") as fp:  # Pickling
+                pickle.dump(frame_index, fp)
+                pickle.dump(curr_landmarks, fp)
+                pickle.dump(curr_bbox, fp)
+                pickle.dump(curr_euler, fp)
 
-        # Convert to numpy array format
-        frame_indices = np.array(frame_indices)
-        landmarks = np.array(landmarks)
-        bboxes = np.array(bboxes)
-        eulers = np.array(eulers)
+        else:
+            # Load landmarks and bounding boxes from file
+            with open(cache_file, "rb") as fp:  # Unpickling
+                frame_index = pickle.load(fp)
+                curr_landmarks = pickle.load(fp)
+                curr_bbox = pickle.load(fp)
+                curr_euler = pickle.load(fp)
 
-        # Save landmarks and bounding boxes to file
-        with open(cache_file, "wb") as fp:  # Pickling
-            pickle.dump(frame_indices, fp)
-            pickle.dump(landmarks, fp)
-            pickle.dump(bboxes, fp)
-            pickle.dump(eulers, fp)
-    else:
-        # Load landmarks and bounding boxes from file
-        with open(cache_file, "rb") as fp:  # Unpickling
-            frame_indices = pickle.load(fp)
-            landmarks = pickle.load(fp)
-            bboxes = pickle.load(fp)
-            eulers = pickle.load(fp)
+        # Append to list
+        frame_indices.append(frame_index)
+        landmarks.append(curr_landmarks)
+        bboxes.append(curr_bbox)
+        eulers.append(curr_euler)
+
+
+    # Convert to numpy array format
+    frame_indices = np.array(frame_indices)
+    landmarks = np.array(landmarks)
+    bboxes = np.array(bboxes)
+    eulers = np.array(eulers)
+
 
     return frame_indices, landmarks, bboxes, eulers
