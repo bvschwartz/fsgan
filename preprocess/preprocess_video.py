@@ -7,6 +7,7 @@ and cropped videos per sequence. In addition for each cropped video, the corresp
 segmentation masks will be computed and cached.
 """
 
+print('importing')
 import os
 import argparse
 import sys
@@ -30,6 +31,7 @@ from fsgan.utils.temporal_smoothing import TemporalSmoothing
 from fsgan.utils.landmarks_utils import LandmarksHeatMapEncoder, smooth_landmarks_98pts
 from fsgan.utils.seg_utils import encode_binary_mask, remove_inner_mouth
 from fsgan.utils.batch import main as batch
+print('importing done')
 
 
 base_parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
@@ -144,6 +146,8 @@ class VideoProcessBase(object):
          seg_model=d('seg_model'), seg_batch_size=d('seg_batch_size'), segmentation_postfix=d('segmentation_postfix'),
          cache_segmentation=d('cache_segmentation'), smooth_segmentation=d('smooth_segmentation'),
          seg_remove_mouth=d('seg_remove_mouth')):
+        print('VideoProcessBase begins')
+
         # General
         self.resolution = resolution
         self.crop_scale = crop_scale
@@ -153,6 +157,7 @@ class VideoProcessBase(object):
         # Detection
         self.face_detector = FaceDetector(det_postfix, detection_model, gpus, det_batch_size, display)
         self.det_postfix = det_postfix
+        print('VideoProcessBase face_detector created')
 
         # Sequences
         self.iou_thresh = iou_thresh
@@ -185,6 +190,7 @@ class VideoProcessBase(object):
         self.seg_remove_mouth = seg_remove_mouth and cache_landmarks
 
         # Initialize device
+        print('VideoProcessBase initialize device')
         torch.set_grad_enabled(False)
         self.device, self.gpus = set_device(gpus, not cpu_only)
 

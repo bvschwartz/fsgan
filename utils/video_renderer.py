@@ -35,6 +35,7 @@ class VideoRenderer(mp.Process):
         self._running = True
         self._input_queue = mp.Queue()
         self._reply_queue = mp.Queue()
+        print('about to init VideoWrite_fourcc with:', encoder_codec)
         self._fourcc = cv2.VideoWriter_fourcc(*encoder_codec)
         self._separate_process = separate_process
         self._in_vid = None
@@ -130,6 +131,7 @@ class VideoRenderer(mp.Process):
     def _render(self, render_bgr, full_frame_bgr=None, bbox=None):
         if self._verbose == 0 and not self._output_crop and full_frame_bgr is not None:
             render_bgr = crop2img(full_frame_bgr, render_bgr, bbox)
+            cv2.imwrite('./6-final-render_bgr.png', render_bgr)
         if self._out_vid is not None:
             self._out_vid.write(render_bgr)
         if self._display:
@@ -194,6 +196,9 @@ class VideoRenderer(mp.Process):
                 bbox = scale_bbox(bbox, self._crop_scale)
 
             render_bgr = self.on_render(*[t[b] for t in tensors])
+            print('render bbox:', bbox)
+            cv2.imwrite('./5-render_bgr.png', render_bgr)
+            cv2.imwrite('./5-full_frame_bgr.png', full_frame_bgr)
             self._render(render_bgr, full_frame_bgr, bbox)
             self._frame_count += 1
             # print(f'Debug: Wrote frame: {self._frame_count}')
