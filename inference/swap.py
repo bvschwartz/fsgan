@@ -64,6 +64,8 @@ parser.add_argument('-oc', '--output_crop', action='store_true',
                     help='output crop around the face instead of full frame')
 parser.add_argument('-rp', '--renderer_process', action='store_true',
                     help='If True, the renderer will be run in a separate process')
+parser.add_argument('-sv', '--server', action='store_true', default=False,
+                    help='If True, run as a server')
 
 finetune = parser.add_argument_group('finetune')
 finetune.add_argument('-f', '--finetune', action='store_true',
@@ -469,6 +471,7 @@ def main(source, target, output=None, select_source=d('select_source'), select_t
          # General arguments
          resolution=d('resolution'), crop_scale=d('crop_scale'), gpus=d('gpus'),
          cpu_only=d('cpu_only'), display=d('display'), verbose=d('verbose'), encoder_codec=d('encoder_codec'),
+         server=d('server'),
          # Detection arguments:
          detection_model=d('detection_model'), det_batch_size=d('det_batch_size'), det_postfix=d('det_postfix'),
          # Sequence arguments:
@@ -494,6 +497,7 @@ def main(source, target, output=None, select_source=d('select_source'), select_t
          blending_model=d('blending_model'), criterion_id=d('criterion_id'), min_radius=d('min_radius'),
          output_crop=d('output_crop'), renderer_process=d('renderer_process')):
     print('create face_swapping')
+    print('server:', server, 'output_crop:', output_crop)
     face_swapping = FaceSwapping(
         resolution, crop_scale, gpus, cpu_only, display, verbose, encoder_codec,
         detection_model=detection_model, det_batch_size=det_batch_size, det_postfix=det_postfix,
@@ -512,11 +516,17 @@ def main(source, target, output=None, select_source=d('select_source'), select_t
         blending_model=blending_model, criterion_id=criterion_id, min_radius=min_radius, output_crop=output_crop,
         renderer_process=renderer_process)
     print('create face_swapping done')
+    print('server:', server)
     if len(source) == 1 and len(target) == 1 and os.path.isfile(source[0]) and os.path.isfile(target[0]):
-        print(source[0], target[0], output, select_source, select_target)
+        print('start swapping one to one:', source[0], target[0], output, select_source, select_target)
         face_swapping(source[0], target[0], output, select_source, select_target)
+    elif server:
+        print('ignoring source and target, run as server!!!')
     else:
+        print('start batch swappping')
         batch(source, target, output, face_swapping, postfix='.mp4', skip_existing=True)
+
+    print('**** donzo ****')
 
 
 if __name__ == "__main__":
