@@ -42,6 +42,7 @@ class VideoRenderer(mp.Process):
         self._out_vid = None
         self._seq = None
         self._in_vid_path = None
+        self._in_out_path = None
         self._total_frames = None
         self._frame_count = 0
 
@@ -131,9 +132,14 @@ class VideoRenderer(mp.Process):
     def _render(self, render_bgr, full_frame_bgr=None, bbox=None):
         if self._verbose == 0 and not self._output_crop and full_frame_bgr is not None:
             render_bgr = crop2img(full_frame_bgr, render_bgr, bbox)
-            cv2.imwrite('./6-final-render_bgr.png', render_bgr)
         if self._out_vid is not None:
-            self._out_vid.write(render_bgr)
+            # this is a bit of a hack... but if only one frame write out PNG file
+            if self._total_frames == 1:
+                image_path = self._out_vid_path.replace('.mp4', '.png')
+                cv2.imwrite(image_path, render_bgr)
+            else:
+                # write frame to video
+                self._out_vid.write(render_bgr)
         if self._display:
             cv2.imshow('render', render_bgr)
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -142,6 +148,7 @@ class VideoRenderer(mp.Process):
     def _init_task(self, in_vid_path, seq, out_vid_path, additional_attributes):
         # print('_init_task start')
         self._in_vid_path, self._seq = in_vid_path, seq
+        self._out_vid_path = out_vid_path
         self._frame_count = 0
 
         # Add additional arguments as members
