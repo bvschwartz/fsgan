@@ -42,7 +42,7 @@ class VideoRenderer(mp.Process):
         self._out_vid = None
         self._seq = None
         self._in_vid_path = None
-        self._in_out_path = None
+        self._out_vid_path = None
         self._total_frames = None
         self._frame_count = 0
 
@@ -132,7 +132,7 @@ class VideoRenderer(mp.Process):
     def _render(self, render_bgr, full_frame_bgr=None, bbox=None):
         if self._verbose == 0 and not self._output_crop and full_frame_bgr is not None:
             render_bgr = crop2img(full_frame_bgr, render_bgr, bbox)
-        if self._out_vid is not None:
+        if self._out_vid_path is not None:
             # this is a bit of a hack... but if only one frame write out PNG file
             if self._total_frames == 1:
                 image_path = self._out_vid_path.replace('.mp4', '.png')
@@ -167,13 +167,14 @@ class VideoRenderer(mp.Process):
         # print(f'Debug: initializing video: "{self._in_vid_path}", total_frames={self._total_frames}')
 
         # Initialize output video
-        if out_vid_path is not None:
+        if self._out_vid_path is not None:
             out_size = (in_vid_width, in_vid_height)
             if self._verbose <= 0 and self._output_crop:
                 out_size = (self._resolution, self._resolution)
             elif self._verbose_size is not None:
                 out_size = self._verbose_size
-            self._out_vid = cv2.VideoWriter(out_vid_path, self._fourcc, fps, out_size)
+            if in_total_frames > 1:
+                self._out_vid = cv2.VideoWriter(self._out_vid_path, self._fourcc, fps, out_size)
 
         # Write frames as they are until the start of the sequence
         if self._verbose == 0:
@@ -223,7 +224,7 @@ class VideoRenderer(mp.Process):
         # if self._frame_count >= self._total_frames:
         # Clean up
         self._in_vid.release()
-        self._out_vid.release()
+        self._out_vid != None and self._out_vid.release()
         self._in_vid = None
         self._out_vid = None
         self._seq = None
