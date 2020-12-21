@@ -229,7 +229,9 @@ class FaceSwapping(VideoProcessBase):
     def __call__(self, source_path, target_path, output_path=None, select_source='longest', select_target='longest',
                  finetune=None):
         is_vid = os.path.splitext(source_path)[1] == '.mp4'
+        is_target_vid = os.path.splitext(target_path)[1] == '.mp4'
         finetune = self.finetune_enabled and is_vid if finetune is None else finetune and is_vid
+        print('is_vid:', is_vid, 'is_target_vid:', is_target_vid, 'finetune:', finetune)
 
         # Validation
         assert os.path.isfile(source_path), 'Source path "%s" does not exist' % source_path
@@ -323,8 +325,8 @@ class FaceSwapping(VideoProcessBase):
 
             # Soften target mask
             soft_tgt_mask, eroded_tgt_mask = self.smooth_mask(tgt_mask)
-            print("target mask:", tgt_mask)
-            print("soft target mask:", soft_tgt_mask)
+            #print("target mask:", tgt_mask)
+            #print("soft target mask:", soft_tgt_mask)
 
             # Complete face
             inpainting_input_tensor = torch.cat((reenactment_tensor, eroded_tgt_mask.float()), dim=1)
