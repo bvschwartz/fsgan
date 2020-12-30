@@ -451,7 +451,7 @@ def render_appearance_map(fig, tri, points, query_point=None, render_scale=99.):
 
 
 def select_seq(seq_list, select='longest'):
-    print('select_seq', select, 'from:', seq_list)
+    #print('select_seq', select, 'from:', seq_list)
     if select == 'longest':
         seq = seq_list[np.argmax([len(s) for s in seq_list])]
     elif select.isnumeric():
@@ -519,12 +519,12 @@ def main(source, target, output=None, select_source=d('select_source'), select_t
         renderer_process=renderer_process)
     print('create face_swapping done')
     print('server:', run_server)
-    if len(source) == 1 and len(target) == 1 and os.path.isfile(source[0]) and os.path.isfile(target[0]):
-        print('start swapping one to one:', source[0], target[0], output, select_source, select_target)
-        face_swapping(source[0], target[0], output, select_source, select_target)
-    elif run_server:
+    if run_server:
         print('ignoring source and target, run as server!!!')
         jobs.JobProcessor.server(face_swapping)
+    elif len(source) == 1 and len(target) == 1 and os.path.isfile(source[0]) and os.path.isfile(target[0]):
+        print('start swapping one to one:', source[0], target[0], output, select_source, select_target)
+        face_swapping(source[0], target[0], output, select_source, select_target)
     else:
         print('start batch swappping')
         batch(source, target, output, face_swapping, postfix='.mp4', skip_existing=True)
