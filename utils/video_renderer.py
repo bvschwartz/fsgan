@@ -5,6 +5,11 @@ import torch.multiprocessing as mp
 from fsgan.utils.img_utils import tensor2bgr
 from fsgan.utils.bbox_utils import crop2img, scale_bbox
 
+class Task():
+    # for excuting tasks that can be put on input_queue
+    def __init__(self, cmd, data=None):
+        self.cmd = cmd
+        self.data = data
 
 class VideoRenderer(mp.Process):
     """ Renders input video frames to both screen and video file.
@@ -48,6 +53,8 @@ class VideoRenderer(mp.Process):
 
     def init(self, in_vid_path, seq, out_vid_path=None, **kwargs):
         """ Initialize the video render for a new video rendering job.
+            Actual work done by _init_task.
+            Work included copying all the frames up to the first segment.
 
         Args:
             in_vid_path (str): Input video path
@@ -65,6 +72,7 @@ class VideoRenderer(mp.Process):
 
     def write(self, *args):
         """ Add tensors for rendering.
+            Actual work done by _write_batch.
 
         Args:
             *args (tuple of torch.Tensor): The tensors for rendering
@@ -77,6 +85,8 @@ class VideoRenderer(mp.Process):
             self._write_batch([a.cpu() for a in args])
 
     def finalize(self):
+        # Copies frames that are after the sequence
+        # Acutal work done by _finalize_task
         if self._separate_process:
             self._input_queue.put(True)
         else:
@@ -117,6 +127,12 @@ class VideoRenderer(mp.Process):
         while self._running:
             task = self._input_queue.get()
 
+            if isinstance(task, Task):
+                self._task(task.command, task.data)
+                if task.command == "finalize":
+                    self._reply_queue.put(True)
+                continue
+
             # Initialize new video rendering task
             if self._in_vid is None:
                 self._init_task(*task[:3], task[3])
@@ -132,6 +148,20 @@ class VideoRenderer(mp.Process):
 
             # Write a batch of frames
             self._write_batch(task)
+
+    def task(self, command, data):
+        if self._separate_process:
+            self._input_queue.put(Task(command, data))
+        else
+            self._task(command, data)
+
+    def _task(self, command, data):
+        if command == "write":
+            self._write_batch(task.data)
+        elif command == "finalize":
+            self._finalize_task()
+        elif command == "init":
+
 
     def _render(self, render_bgr, full_frame_bgr=None, bbox=None):
         if self._verbose == 0 and not self._output_crop and full_frame_bgr is not None:
