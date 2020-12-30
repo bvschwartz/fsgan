@@ -63,12 +63,7 @@ class VideoRenderer(mp.Process):
             **kwargs (dict): Additional keyword arguments that will be added as members of the class. This allows
                 inheriting classes to access those arguments from the new process
         """
-        if self._separate_process:
-            print('render video in separate process')
-            self._input_queue.put([in_vid_path, seq, out_vid_path, kwargs])
-        else:
-            print('render video in this process')
-            self._init_task(in_vid_path, seq, out_vid_path, kwargs)
+        self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
 
     def write(self, *args):
         """ Add tensors for rendering.
@@ -77,20 +72,12 @@ class VideoRenderer(mp.Process):
         Args:
             *args (tuple of torch.Tensor): The tensors for rendering
         """
-        if self._separate_process:
-            #print('write video in separate process')
-            self._input_queue.put([a.cpu() for a in args])
-        else:
-            #print('write video in this process')
-            self._write_batch([a.cpu() for a in args])
+        self.executeTask('write', [a.cpu() for a in args])
 
     def finalize(self):
         # Copies frames that are after the sequence
-        # Acutal work done by _finalize_task
-        if self._separate_process:
-            self._input_queue.put(True)
-        else:
-            self._finalize_task()
+        # Actual work done by _finalize_task
+        self.execute_task('finalize')
 
     def wait_until_finished(self):
         """ Wait for the video renderer to finish the current video rendering job. """
@@ -133,12 +120,18 @@ class VideoRenderer(mp.Process):
                     self._reply_queue.put(True)
                 continue
 
+            # None of this should be called anymore
+            assert False, 'use new task system'
+
+
             # Initialize new video rendering task
+            # "init" task
             if self._in_vid is None:
                 self._init_task(*task[:3], task[3])
                 continue
 
             # Finalize task
+            # "finalize" task
             if isinstance(task, bool):
                 self._finalize_task()
 
@@ -147,12 +140,13 @@ class VideoRenderer(mp.Process):
                 continue
 
             # Write a batch of frames
+            # "write" task
             self._write_batch(task)
 
-    def task(self, command, data):
+    def execute_task(self, command, data):
         if self._separate_process:
             self._input_queue.put(Task(command, data))
-        else
+        else:
             self._task(command, data)
 
     def _task(self, command, data):
@@ -161,6 +155,8 @@ class VideoRenderer(mp.Process):
         elif command == "finalize":
             self._finalize_task()
         elif command == "init":
+            # expand from self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
+            self._init_task(*task[:3], task[3])
 
 
     def _render(self, render_bgr, full_frame_bgr=None, bbox=None):
