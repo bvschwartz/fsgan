@@ -3,9 +3,10 @@ import math
 import time
 import json
 
-inbox = './inbox'
-outbox = './outbox'
-swapbox = 'data/swaps'
+desk = '/home/leon_finch/desk/'  # TODO: pass in this location
+inbox = desk + 'inbox'
+outbox = desk + 'outbox'
+imagesbox = desk + 'images'
 
 class JobProcessor:
     def wait_get_job():
@@ -66,15 +67,17 @@ class JobProcessor:
             job['swaps'] = []
             JobProcessor.update_job(job)
 
-            source_path = job['src_image']
+            desk_source_path = desk + job['src_image']
             target_images = job['target_images']
             for target_path in target_images:
-                print('working on target', target_path)
-                src_path_no_ext, src_ext = os.path.splitext(source_path)
-                tgt_path_no_ext, tgt_ext = os.path.splitext(target_path)
-                output_path = swapbox + f'/{os.path.basename(src_path_no_ext)}_{os.path.basename(tgt_path_no_ext)}' + '.jpg'
-                print(source_path, target_path, output_path)
-                face_swapping(source_path, target_path, output_path)
+                desk_target_path = desk + target_path
+                print('working on target', desk_target_path)
+                src_path_no_ext, src_ext = os.path.splitext(desk_source_path)
+                tgt_path_no_ext, tgt_ext = os.path.splitext(desk_target_path)
+                output_path = 'images/' + job['id'] + f'/{os.path.basename(src_path_no_ext)}_{os.path.basename(tgt_path_no_ext)}' + tgt_ext
+                desk_output_path = desk + output_path
+                print(desk_source_path, desk_target_path, desk_output_path)
+                face_swapping(desk_source_path, desk_target_path, desk_output_path)
 
                 job['swaps'].append(output_path)
                 job['status'] = 'partial'
