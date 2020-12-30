@@ -64,6 +64,13 @@ class VideoRenderer(mp.Process):
                 inheriting classes to access those arguments from the new process
         """
         self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
+        self.write_frames(seq.start_index)
+
+    def write_frames(self, count):
+        """ Writes frames from target video to output
+            Intended for frames with no faces
+        """
+        self.execute_task('write_frames', count)
 
     def write(self, *args):
         """ Add tensors for rendering.
@@ -115,7 +122,7 @@ class VideoRenderer(mp.Process):
             task = self._input_queue.get()
 
             if isinstance(task, Task):
-                self._task(task.command, task.data)
+                self._run_task(task.command, task.data)
                 if task.command == "finalize":
                     self._reply_queue.put(True)
                 continue
@@ -149,12 +156,15 @@ class VideoRenderer(mp.Process):
         if self._separate_process:
             self._input_queue.put(Task(command, data))
         else:
-            self._task(command, data)
+            self._run_task(command, data)
 
-    def _task(self, command, data):
+    def _run_task(self, command, data):
+        # print('_run_task:', command)
         if command == "init":
             # expand from self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
             self._init_task(*data[:3], data[3])
+        elif command == "write_frames":
+            self._write_frames(data)
         elif command == "write":
             self._write_batch(data)
         elif command == "finalize":
@@ -210,13 +220,15 @@ class VideoRenderer(mp.Process):
             if in_total_frames > 1:
                 self._out_vid = cv2.VideoWriter(self._out_vid_path, self._fourcc, fps, out_size)
 
-        # Write frames as they are until the start of the sequence
+
+    def _write_frames(self, frame_count):
+        # E.g. Write frames as they are until the start of the sequence
         if self._verbose == 0:
-            print(f'Debug: render first {self._seq.start_index} frames (outside of seq)')
-            for i in range(self._seq.start_index):
+            print(f'Debug: render {frame_count} frames (outside of seq)')
+            for i in range(frame_count):
                 # Read frame
                 ret, frame_bgr = self._in_vid.read()
-                assert frame_bgr is not None, f'Failed to read frame {i} from input video: "{self._in_vid_path}"'
+                assert frame_bgr is not None, f'Failed to read frame {self._frame_count + i} from input video: "{self._in_vid_path}"'
                 self._render(frame_bgr)
                 self._frame_count += 1
 
