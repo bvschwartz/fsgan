@@ -279,7 +279,6 @@ class FaceSwapping(VideoProcessBase):
 
         # Initialize video writer
         print('init video writer', target_path, target_seq, output_path, appearance_map)
-        #self.video_renderer.init(target_path, target_seq, output_path, _appearance_map=appearance_map, encoder_codec="mp4v")
         self.video_renderer.init(target_path, target_seq, output_path, _appearance_map=appearance_map)
         print('init video writer done')
 
@@ -287,6 +286,7 @@ class FaceSwapping(VideoProcessBase):
         if finetune:
             self.finetune(src_vid_seq_path, self.finetune_save)
 
+        # FIXME: this should be in a loop for each sequence... self.video_renderer._in_vid is ready to go!!
         print(f'=> Face swapping: "{src_vid_seq_name}" -> "{tgt_vid_seq_name}"...')
 
         # For each batch of frames in the target video
@@ -324,7 +324,7 @@ class FaceSwapping(VideoProcessBase):
 
             # Remove the background of the aligned face
             reenactment_tensor.masked_fill_(reenactment_background_mask_tensor, -1.0)
-            cv2.imwrite('./0-reenactment.png', tensor2bgr(reenactment_tensor))
+            #cv2.imwrite('./0-reenactment.png', tensor2bgr(reenactment_tensor))
 
             # Soften target mask
             soft_tgt_mask, eroded_tgt_mask = self.smooth_mask(tgt_mask)
@@ -335,25 +335,25 @@ class FaceSwapping(VideoProcessBase):
             inpainting_input_tensor = torch.cat((reenactment_tensor, eroded_tgt_mask.float()), dim=1)
             inpainting_input_tensor_pyd = create_pyramid(inpainting_input_tensor, 2)
             completion_tensor = self.Gc(inpainting_input_tensor_pyd)
-            cv2.imwrite('./1-completion.png', tensor2bgr(completion_tensor))
+            #cv2.imwrite('./1-completion.png', tensor2bgr(completion_tensor))
 
             # Blend faces
             transfer_tensor = transfer_mask(completion_tensor, tgt_frame, eroded_tgt_mask)
             blend_input_tensor = torch.cat((transfer_tensor, tgt_frame, eroded_tgt_mask.float()), dim=1)
             blend_input_tensor_pyd = create_pyramid(blend_input_tensor, 2)
             blend_tensor = self.Gb(blend_input_tensor_pyd)
-            cv2.imwrite('./2-blend.png', tensor2bgr(blend_tensor))
+            #cv2.imwrite('./2-blend.png', tensor2bgr(blend_tensor))
 
             # Final result
             result_tensor = blend_tensor * soft_tgt_mask + tgt_frame * (1 - soft_tgt_mask)
-            cv2.imwrite('./3-target_mask.png', tensor2bgr(blend_tensor * tgt_mask))
-            cv2.imwrite('./3-soft_target_mask.png', tensor2bgr(blend_tensor * soft_tgt_mask))
-            cv2.imwrite('./3-target_frame.png', tensor2bgr(tgt_frame))
+            ###cv2.imwrite('./3-target_mask.png', tensor2bgr(blend_tensor * tgt_mask))
+            #cv2.imwrite('./3-soft_target_mask.png', tensor2bgr(blend_tensor * soft_tgt_mask))
+            #cv2.imwrite('./3-target_frame.png', tensor2bgr(tgt_frame))
 
             # Write output
-            print('verbose=', self.verbose)
+            #print('verbose=', self.verbose)
             if self.verbose == 0:
-                cv2.imwrite('./4-frame.png', tensor2bgr(result_tensor))
+                #cv2.imwrite('./4-frame.png', tensor2bgr(result_tensor))
                 self.video_renderer.write(result_tensor)
             elif self.verbose == 1:
                 curr_src_frames = [src_frame[0][:, i] for i in range(src_frame[0].shape[1])]
@@ -399,7 +399,7 @@ class FaceSwappingRenderer(VideoRenderer):
                                                    encoder_codec, separate_process)
 
     def on_render(self, *args):
-        print('swap FaceSwappingRenderer on_render')
+        #print('swap FaceSwappingRenderer on_render')
         if self._verbose <= 0:
             return tensor2bgr(args[0])
         elif self._verbose == 1:
@@ -451,6 +451,7 @@ def render_appearance_map(fig, tri, points, query_point=None, render_scale=99.):
 
 
 def select_seq(seq_list, select='longest'):
+    print('select_seq', select, 'from:', seq_list)
     if select == 'longest':
         seq = seq_list[np.argmax([len(s) for s in seq_list])]
     elif select.isnumeric():

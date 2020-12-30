@@ -4,3 +4,9 @@ __pycache__
 experiments/results
 weights
 download_fsgan_models.py
+*.mp4
+*.png
+.ipynb_checkpoints
+data
+docs/examples/conan_obrien/
+docs/examples/shinzo_abe/

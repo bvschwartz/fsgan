@@ -17,7 +17,7 @@ def main(input_path, cache_path=None, output_path=None, iou_thresh=0.75, min_len
     if not os.path.isfile(cache_path):
         raise RuntimeError('Cache file does not exist: ' + cache_path)
 
-    print('=> Extracting sequences from detections in video: "%s"...' % os.path.basename(input_path))
+    print('=> 1euro Extracting sequences from detections in video: "%s"...' % os.path.basename(input_path))
 
     # Load detections from file
     with open(cache_path, "rb") as fp:  # Unpickling

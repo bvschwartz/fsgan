@@ -19,7 +19,7 @@ def main(input_path, output_path=None, cache_path=None, iou_thresh=0.75, min_len
     if not os.path.isfile(cache_path):
         raise RuntimeError('Cache file does not exist: ' + cache_path)
 
-    print('=> Extracting sequences from detections in video: "%s"...' % os.path.basename(input_path))
+    print('=> center Extracting sequences from detections in video: "%s"...' % os.path.basename(input_path))
 
     # Load detections from file
     with open(cache_path, "rb") as fp:  # Unpickling
@@ -39,7 +39,7 @@ def main(input_path, output_path=None, cache_path=None, iou_thresh=0.75, min_len
     # For each frame detection
     seq_list = []
     curr_seq_list = []
-    # for i, frame_det in enumerate(det_list):    # Debug
+    #for i, frame_det in enumerate(det_list):    # Debug
     for i, frame_det in tqdm(enumerate(det_list), total=len(det_list)):
         frame_det = list(frame_det)
         if len(curr_seq_list) > 0:
@@ -83,6 +83,7 @@ def main(input_path, output_path=None, cache_path=None, iou_thresh=0.75, min_len
                 break
 
     # Reduce the n sequence ids to [0, ..., n - 1]
+    print('reduce...', seq_list)
     ids = np.sort([seq.id for seq in seq_list])
     ids_map = {k: v for v, k in enumerate(ids)}
     for seq in seq_list:

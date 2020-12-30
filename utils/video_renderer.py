@@ -57,8 +57,10 @@ class VideoRenderer(mp.Process):
                 inheriting classes to access those arguments from the new process
         """
         if self._separate_process:
+            print('render video in separate process')
             self._input_queue.put([in_vid_path, seq, out_vid_path, kwargs])
         else:
+            print('render video in this process')
             self._init_task(in_vid_path, seq, out_vid_path, kwargs)
 
     def write(self, *args):
@@ -68,8 +70,10 @@ class VideoRenderer(mp.Process):
             *args (tuple of torch.Tensor): The tensors for rendering
         """
         if self._separate_process:
+            #print('write video in separate process')
             self._input_queue.put([a.cpu() for a in args])
         else:
+            #print('write video in this process')
             self._write_batch([a.cpu() for a in args])
 
     def finalize(self):
@@ -164,7 +168,7 @@ class VideoRenderer(mp.Process):
         in_vid_width = int(self._in_vid.get(cv2.CAP_PROP_FRAME_WIDTH))
         in_vid_height = int(self._in_vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self._total_frames = in_total_frames if self._verbose == 0 else len(self._seq)
-        # print(f'Debug: initializing video: "{self._in_vid_path}", total_frames={self._total_frames}')
+        print(f'Debug: initializing video: "{self._in_vid_path}", total_frames={self._total_frames}')
 
         # Initialize output video
         if self._out_vid_path is not None:
@@ -178,6 +182,7 @@ class VideoRenderer(mp.Process):
 
         # Write frames as they are until the start of the sequence
         if self._verbose == 0:
+            print(f'Debug: render first {self._seq.start_index} frames (outside of seq)')
             for i in range(self._seq.start_index):
                 # Read frame
                 ret, frame_bgr = self._in_vid.read()
@@ -187,6 +192,7 @@ class VideoRenderer(mp.Process):
 
     def _write_batch(self, tensors):
         batch_size = tensors[0].shape[0]
+        print(f'Debug: _write_batch, size is {batch_size}')
 
         # For each frame in the current batch of tensors
         for b in range(batch_size):
@@ -204,15 +210,17 @@ class VideoRenderer(mp.Process):
                 bbox = scale_bbox(bbox, self._crop_scale)
 
             render_bgr = self.on_render(*[t[b] for t in tensors])
-            print('render bbox:', bbox)
-            cv2.imwrite('./5-render_bgr.png', render_bgr)
-            cv2.imwrite('./5-full_frame_bgr.png', full_frame_bgr)
+            #print('render bbox:', bbox)
+            #cv2.imwrite('./5-render_bgr.png', render_bgr)
+            #cv2.imwrite('./5-full_frame_bgr.png', full_frame_bgr)
             self._render(render_bgr, full_frame_bgr, bbox)
             self._frame_count += 1
             # print(f'Debug: Wrote frame: {self._frame_count}')
 
     def _finalize_task(self):
+        # copy over all frames after the seq
         if self._verbose == 0 and self._frame_count >= (self._seq.start_index + len(self._seq)):
+            print(f'Debug: Write frames after seq starting at {self._seq.start_index + len(self._seq)} until {self._total_frames} frames')
             for i in range(self._seq.start_index + len(self._seq), self._total_frames):
                 # Read frame
                 ret, frame_bgr = self._in_vid.read()
@@ -221,6 +229,7 @@ class VideoRenderer(mp.Process):
                 self._frame_count += 1
                 # print(f'Debug: Wrote frame: {self._frame_count}')
 
+        print(f'Debug: Wrote up to {self._frame_count} of total {self._total_frames}')
         # if self._frame_count >= self._total_frames:
         # Clean up
         self._in_vid.release()

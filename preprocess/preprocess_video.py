@@ -445,14 +445,17 @@ class VideoProcessBase(object):
 
         # Create directory
         if not os.path.isdir(output_dir):
+            print('create output_dir:', output_dir)
             os.mkdir(output_dir)
 
         # Face detection
         if not os.path.isfile(det_file_path):
+            print('face_detector:', input_path, det_file_path)
             self.face_detector(input_path, det_file_path)
 
         # Detections to sequences
         if not os.path.isfile(seq_file_path):
+            print('detections2sequences_main:', input_path, seq_file_path, det_file_path)
             detections2sequences_main(input_path, seq_file_path, det_file_path, self.iou_thresh, self.min_length,
                                       self.min_size, self.crop_scale, self.center_kernel, self.size_kernel,
                                       self.smooth_det, self.display, self.write_empty)
@@ -460,10 +463,12 @@ class VideoProcessBase(object):
         # Crop video sequences
         if not os.path.isfile(first_cropped_path):
             if is_vid:
+                print('crop_video_sequences_main:', input_path, output_dir, seq_file_path)
                 crop_video_sequences_main(input_path, output_dir, seq_file_path, self.seq_postfix, self.resolution,
                                           self.crop_scale, select='all', disable_tqdm=False,
                                           encoder_codec=self.encoder_codec)
             else:
+                print('crop_image_sequences_main:', input_path, output_dir, seq_file_path)
                 crop_image_sequences_main(input_path, output_dir, seq_file_path, self.seq_postfix, '.jpg',
                                           self.resolution, self.crop_scale)
 
@@ -471,18 +476,22 @@ class VideoProcessBase(object):
         # if not os.path.isfile(pose_file_path) and is_vid:
         #     self.process_pose(input_path, output_dir, seq_file_path, pose_file_path)
         # if is_vid:
+        print('process_pose:', input_path, output_dir, seq_file_path)
         self.process_pose(input_path, output_dir, seq_file_path)
 
         # Extract frontal images
         # if self.cache_pose and self.cache_frontal and is_vid:
         #     self.extract_frontal_images(input_path, output_dir, pose_file_path)
         if self.cache_pose and self.cache_frontal and is_vid:
+            print('extract_frontal_images:', input_path, output_dir, seq_file_path)
             self.extract_frontal_images(input_path, output_dir, seq_file_path)
 
         # Cache landmarks
+        print('cache_landmarks:', input_path, output_dir, seq_file_path)
         self.process_landmarks(input_path, output_dir, seq_file_path)
 
         # Cache segmentation
+        print('process_segmentation:', input_path, output_dir, seq_file_path)
         self.process_segmentation(input_path, output_dir, seq_file_path)
 
         return output_dir, seq_file_path, pose_file_path if self.cache_pose and is_vid else None
