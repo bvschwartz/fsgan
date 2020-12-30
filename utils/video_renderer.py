@@ -72,7 +72,7 @@ class VideoRenderer(mp.Process):
         Args:
             *args (tuple of torch.Tensor): The tensors for rendering
         """
-        self.executeTask('write', [a.cpu() for a in args])
+        self.execute_task('write', [a.cpu() for a in args])
 
     def finalize(self):
         # Copies frames that are after the sequence
@@ -124,6 +124,7 @@ class VideoRenderer(mp.Process):
             assert False, 'use new task system'
 
 
+            """ OLD RUN CODE
             # Initialize new video rendering task
             # "init" task
             if self._in_vid is None:
@@ -142,21 +143,24 @@ class VideoRenderer(mp.Process):
             # Write a batch of frames
             # "write" task
             self._write_batch(task)
+            """
 
-    def execute_task(self, command, data):
+    def execute_task(self, command, data=None):
         if self._separate_process:
             self._input_queue.put(Task(command, data))
         else:
             self._task(command, data)
 
     def _task(self, command, data):
-        if command == "write":
-            self._write_batch(task.data)
+        if command == "init":
+            # expand from self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
+            self._init_task(*data[:3], data[3])
+        elif command == "write":
+            self._write_batch(data)
         elif command == "finalize":
             self._finalize_task()
-        elif command == "init":
-            # expand from self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
-            self._init_task(*task[:3], task[3])
+        else:
+            assert False, f'Unknown command: {command}'
 
 
     def _render(self, render_bgr, full_frame_bgr=None, bbox=None):
