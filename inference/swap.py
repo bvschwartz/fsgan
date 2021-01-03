@@ -287,11 +287,45 @@ class FaceSwapping(VideoProcessBase):
             self.finetune(src_vid_seq_path, self.finetune_save)
 
         # FIXME: this should be in a loop for each sequence... self.video_renderer._in_vid is ready to go!!
-        print(f'=> Face swapping: "{src_vid_seq_name}" -> "{tgt_vid_seq_name}"...')
+        if select_target == 'all':
+            current_frame = 0
+            for seq in target_seq_list:
+                tgt_path_no_ext, tgt_ext = os.path.splitext(target_path)
+                tgt_vid_seq_name = os.path.basename(tgt_path_no_ext) + '_seq%02d%s' % (seq.id, tgt_ext)
+                tgt_vid_seq_path = os.path.join(target_cache_dir, tgt_vid_seq_name)
+                print('SEQ:', seq, tgt_vid_seq_path)
+                appearance_map = AppearanceMapDataset(src_vid_seq_path, tgt_vid_seq_path, src_transform, tgt_transform,
+                                              self.landmarks_postfix, self.pose_postfix, self.segmentation_postfix,
+                                              self.min_radius)
+                appearance_map_loader = DataLoader(appearance_map, batch_size=self.batch_size, num_workers=1, pin_memory=True,
+                                           drop_last=False, shuffle=False)
+                print(f'=> Face swapping: "{src_vid_seq_name}" -> "{tgt_vid_seq_name}"...')
+                print(f'start_index={seq.start_index} current_frame={current_frame}')
+                self.video_renderer.write_frames(seq.start_index - current_frame)
+                self.write_seq(seq, appearance_map_loader)
+                current_frame = seq.start_index + len(seq)
+        else:
+            print(f'=> Face swapping: "{src_vid_seq_name}" -> "{tgt_vid_seq_name}"...')
+            self.video_renderer.write_frames(target_seq.start_index)
+            self.write_seq(target_seq, appearance_map_loader)
 
+        # Load original reenactment weights
+        if finetune:
+            if self.gpus and len(self.gpus) > 1:
+                self.Gr.module.load_state_dict(self.reenactment_state_dict)
+            else:
+                self.Gr.load_state_dict(self.reenactment_state_dict)
+
+        # Finalize video and wait for the video writer to finish writing
+        self.video_renderer.finalize()
+        self.video_renderer.wait_until_finished()
+
+
+    def write_seq(self, tgt_seq, appearance_map_loader):
         # For each batch of frames in the target video
         for i, (src_frame, src_landmarks, src_poses, bw, tgt_frame, tgt_landmarks, tgt_pose, tgt_mask) \
                 in enumerate(tqdm(appearance_map_loader, unit='batches', file=sys.stdout)):
+            print(f'write_seq {i}, len(tgt_frame)={len(tgt_frame)}')
             # Prepare input
             for p in range(len(src_frame)):
                 src_frame[p] = src_frame[p].to(self.device)
@@ -324,6 +358,7 @@ class FaceSwapping(VideoProcessBase):
 
             # Remove the background of the aligned face
             reenactment_tensor.masked_fill_(reenactment_background_mask_tensor, -1.0)
+            print('reenactment_tensor:', reenactment_tensor.size())
             #cv2.imwrite('./0-reenactment.png', tensor2bgr(reenactment_tensor))
 
             # Soften target mask
@@ -354,7 +389,7 @@ class FaceSwapping(VideoProcessBase):
             #print('verbose=', self.verbose)
             if self.verbose == 0:
                 #cv2.imwrite('./4-frame.png', tensor2bgr(result_tensor))
-                self.video_renderer.write(result_tensor)
+                self.video_renderer.write(tgt_seq, i * self.batch_size, result_tensor)
             elif self.verbose == 1:
                 curr_src_frames = [src_frame[0][:, i] for i in range(src_frame[0].shape[1])]
                 self.video_renderer.write(*curr_src_frames, result_tensor, tgt_frame)
@@ -365,17 +400,6 @@ class FaceSwapping(VideoProcessBase):
                 self.video_renderer.write(*curr_src_frames, result_tensor, tgt_frame, reenactment_tensor,
                                           completion_tensor, transfer_tensor, soft_tgt_mask, tgt_seg_blend,
                                           tgt_pose)
-
-        # Load original reenactment weights
-        if finetune:
-            if self.gpus and len(self.gpus) > 1:
-                self.Gr.module.load_state_dict(self.reenactment_state_dict)
-            else:
-                self.Gr.load_state_dict(self.reenactment_state_dict)
-
-        # Finalize video and wait for the video writer to finish writing
-        self.video_renderer.finalize()
-        self.video_renderer.wait_until_finished()
 
 
 class FaceSwappingRenderer(VideoRenderer):
@@ -454,6 +478,8 @@ def select_seq(seq_list, select='longest'):
     #print('select_seq', select, 'from:', seq_list)
     if select == 'longest':
         seq = seq_list[np.argmax([len(s) for s in seq_list])]
+    elif select == 'all':
+        seq = seq_list[np.argmax([len(s) for s in seq_list])]
     elif select.isnumeric():
         seq = seq_list[[s.id for s in seq_list].index(int(select))]
     else:
@@ -499,7 +525,7 @@ def main(source, target, output=None, select_source=d('select_source'), select_t
          blending_model=d('blending_model'), criterion_id=d('criterion_id'), min_radius=d('min_radius'),
          output_crop=d('output_crop'), renderer_process=d('renderer_process')):
     print('create face_swapping')
-    print('server:', run_server, 'output_crop:', output_crop)
+    print('server:', run_server, 'output_crop:', output_crop, 'select_target:', select_target )
     face_swapping = FaceSwapping(
         resolution, crop_scale, gpus, cpu_only, display, verbose, encoder_codec,
         detection_model=detection_model, det_batch_size=det_batch_size, det_postfix=det_postfix,

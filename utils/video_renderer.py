@@ -64,7 +64,8 @@ class VideoRenderer(mp.Process):
                 inheriting classes to access those arguments from the new process
         """
         self.execute_task('init', [in_vid_path, seq, out_vid_path, kwargs])
-        self.write_frames(seq.start_index)
+        # remove the code that write out the first frames:
+        #self.write_frames(seq.start_index)
 
     def write_frames(self, count):
         """ Writes frames from target video to output
@@ -72,14 +73,14 @@ class VideoRenderer(mp.Process):
         """
         self.execute_task('write_frames', count)
 
-    def write(self, *args):
+    def write(self, tgt_seq, seq_index, *args):
         """ Add tensors for rendering.
             Actual work done by _write_batch.
 
         Args:
             *args (tuple of torch.Tensor): The tensors for rendering
         """
-        self.execute_task('write', [a.cpu() for a in args])
+        self.execute_task('write', [tgt_seq, seq_index, [a.cpu() for a in args]])
 
     def finalize(self):
         # Copies frames that are after the sequence
@@ -232,9 +233,12 @@ class VideoRenderer(mp.Process):
                 self._render(frame_bgr)
                 self._frame_count += 1
 
-    def _write_batch(self, tensors):
+    def _write_batch(self, seq_and_tensors):
+        seq = seq_and_tensors[0]
+        batch_index = seq_and_tensors[1]
+        tensors = seq_and_tensors[2]
         batch_size = tensors[0].shape[0]
-        print(f'Debug: _write_batch, size is {batch_size}')
+        #print(f'Debug: _write_batch, size is {batch_size}')
 
         # For each frame in the current batch of tensors
         for b in range(batch_size):
@@ -247,7 +251,9 @@ class VideoRenderer(mp.Process):
                     f'Failed to read frame {self._frame_count} from input video: "{self._in_vid_path}"'
 
                 # Get bounding box from sequence
-                det = self._seq[self._frame_count - self._seq.start_index]
+                # print(dir(seq))
+                print(f'get bounding box {b}... batch_index={batch_index} seq.start_index={seq.start_index} seq.detections={len(seq.detections)} frame_count={self._frame_count}')
+                det = seq[batch_index + b]
                 bbox = np.concatenate((det[:2], det[2:] - det[:2]))
                 bbox = scale_bbox(bbox, self._crop_scale)
 
@@ -261,17 +267,17 @@ class VideoRenderer(mp.Process):
 
     def _finalize_task(self):
         # copy over all frames after the seq
-        if self._verbose == 0 and self._frame_count >= (self._seq.start_index + len(self._seq)):
-            print(f'Debug: Write frames after seq starting at {self._seq.start_index + len(self._seq)} until {self._total_frames} frames')
-            for i in range(self._seq.start_index + len(self._seq), self._total_frames):
-                # Read frame
-                ret, frame_bgr = self._in_vid.read()
-                assert frame_bgr is not None, f'Failed to read frame {i} from input video: "{self._in_vid_path}"'
-                self._render(frame_bgr)
-                self._frame_count += 1
-                # print(f'Debug: Wrote frame: {self._frame_count}')
-
-        print(f'Debug: Wrote up to {self._frame_count} of total {self._total_frames}')
+        #if self._verbose == 0 and self._frame_count >= (self._seq.start_index + len(self._seq)):
+        #    print(f'Debug: Write frames after seq starting at {self._seq.start_index + len(self._seq)} until {self._total_frames} frames')
+        #    for i in range(self._seq.start_index + len(self._seq), self._total_frames):
+        #        # Read frame
+        #        ret, frame_bgr = self._in_vid.read()
+        #        assert frame_bgr is not None, f'Failed to read frame {i} from input video: "{self._in_vid_path}"'
+        #        self._render(frame_bgr)
+        #        self._frame_count += 1
+        #        # print(f'Debug: Wrote frame: {self._frame_count}')
+        #print(f'Debug: Wrote up to {self._frame_count} of total {self._total_frames}')
+        #
         # if self._frame_count >= self._total_frames:
         # Clean up
         self._in_vid.release()
