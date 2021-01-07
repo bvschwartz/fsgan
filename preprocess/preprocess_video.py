@@ -417,6 +417,7 @@ class VideoProcessBase(object):
                 for b in range(mask.shape[0]):
                     curr_mask = mask[b].cpu().numpy()
                     if self.seg_remove_mouth:
+                        print(f'frame_count: {frame_count}')
                         curr_mask = remove_inner_mouth(curr_mask, landmarks[frame_count])
                         frame_count += 1
                     encoded_segmentations.append(encode_binary_mask(curr_mask))

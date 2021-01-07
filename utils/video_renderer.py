@@ -191,7 +191,7 @@ class VideoRenderer(mp.Process):
                 self._running = False
 
     def _init_task(self, in_vid_path, seq, out_vid_path, additional_attributes):
-        # print('_init_task start')
+        print('video_renderer._init_task start, out_vid_path:', out_vid_path)
         self._in_vid_path, self._seq = in_vid_path, seq
         self._out_vid_path = out_vid_path
         self._frame_count = 0
@@ -252,7 +252,7 @@ class VideoRenderer(mp.Process):
 
                 # Get bounding box from sequence
                 # print(dir(seq))
-                print(f'get bounding box {b}... batch_index={batch_index} seq.start_index={seq.start_index} seq.detections={len(seq.detections)} frame_count={self._frame_count}')
+                #print(f'get bounding box {b}... batch_index={batch_index} seq.start_index={seq.start_index} seq.detections={len(seq.detections)} frame_count={self._frame_count}')
                 det = seq[batch_index + b]
                 bbox = np.concatenate((det[:2], det[2:] - det[:2]))
                 bbox = scale_bbox(bbox, self._crop_scale)
