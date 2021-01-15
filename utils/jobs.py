@@ -61,15 +61,19 @@ class JobProcessor:
         while True:
             print('waiting for a job')
             job = JobProcessor.wait_get_job()
+            jobStart = start = time.time()
+
             print('got a job:', job)
 
             job['status'] = 'processing'
             job['swaps'] = []
             JobProcessor.update_job(job)
 
-            desk_source_path = desk + job['src_image']
+            src_image = job['src_image']
+            desk_source_path = desk + src_image
             target_images = job['target_images']
             for target_path in target_images:
+                targetStart = time.time()
                 desk_target_path = desk + target_path
                 print('working on target', desk_target_path)
                 src_path_no_ext, src_ext = os.path.splitext(desk_source_path)
@@ -77,7 +81,7 @@ class JobProcessor:
                 output_dir = image_dir + job['id']
                 desk_output_dir = desk + output_dir
                 os.makedirs(desk_output_dir, 0o777, True)
-                print('**** makedirs:', desk_output_dir)
+                print('makedirs:', desk_output_dir)
                 output_path = output_dir + f'/{os.path.basename(src_path_no_ext)}_{os.path.basename(tgt_path_no_ext)}' + tgt_ext
                 desk_output_path = desk + output_path
                 print(desk_source_path, desk_target_path, desk_output_path)
@@ -86,9 +90,14 @@ class JobProcessor:
                 job['swaps'].append(output_path)
                 job['status'] = 'partial'
                 JobProcessor.update_job(job)
+                targetEnd = time.time()
+                print(f'****** hair swap took {targetEnd - targetStart}s target: {target_path}' )
+
 
             job['status'] = 'complete'
             JobProcessor.update_job(job)
+            jobEnd = time.time()
+            print(f'****** entire job took {jobEnd - jobStart}s src: {src_image}')
 
 
 

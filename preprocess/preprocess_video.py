@@ -33,6 +33,12 @@ from fsgan.utils.seg_utils import encode_binary_mask, remove_inner_mouth
 from fsgan.utils.batch import main as batch
 print('importing done')
 
+import nvidia_smi
+nvidia_smi.nvmlInit()
+nvidia_handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+
+
+
 
 base_parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
 
@@ -247,13 +253,18 @@ class VideoProcessBase(object):
             if os.path.isfile(curr_pose_path):
                 continue
             print('=> Computing face poses for video: "%s"...' % curr_vid_name)
+            res = nvidia_smi.nvmlDeviceGetMemoryInfo(nvidia_handle)
+            print(f'gpu: total={res.total}, used={res.used}, free={res.free}')
 
             # Initialize input video
             in_vid = VideoInferenceDataset(curr_vid_path, transform=img_transforms)
+            print(f'Pose batch size: {self.pose_batch_size}')
             in_vid_loader = DataLoader(in_vid, batch_size=self.pose_batch_size, num_workers=1, pin_memory=True,
                                        drop_last=False, shuffle=False)
 
             # For each batch of frames in the input video
+            res = nvidia_smi.nvmlDeviceGetMemoryInfo(nvidia_handle)
+            print(f'For each batch of frames gpu: total={res.total}, used={res.used}, free={res.free}')
             seq_poses = []
             for i, frame in enumerate(tqdm(in_vid_loader, unit='batches', file=sys.stdout)):
                 frame = frame.to(self.device)
@@ -325,6 +336,8 @@ class VideoProcessBase(object):
             if os.path.isfile(curr_lms_path):
                 continue
             print('=> Computing face landmarks for video: "%s"...' % curr_vid_name)
+            res = nvidia_smi.nvmlDeviceGetMemoryInfo(nvidia_handle)
+            print(f'gpu: total={res.total}, used={res.used}, free={res.free}')
 
             # Initialize input video
             in_vid = VideoInferenceDataset(curr_vid_path, transform=img_transforms)
@@ -371,6 +384,9 @@ class VideoProcessBase(object):
             if os.path.isfile(curr_seg_path):
                 continue
             print('=> Computing face segmentation for video: "%s"...' % curr_vid_name)
+            res = nvidia_smi.nvmlDeviceGetMemoryInfo(nvidia_handle)
+            print(f'gpu: total={res.total}, used={res.used}, free={res.free}')
+            print(f'seg batch size: {self.seg_batch_size}')
 
             # Initialize input video
             in_vid = VideoInferenceDataset(curr_vid_path, transform=img_transforms)

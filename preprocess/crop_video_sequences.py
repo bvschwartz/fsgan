@@ -49,9 +49,11 @@ def main(input_path, output_dir=None, cache_path=None, seq_postfix='_dsfd_seq.pk
     # For each sequence initialize output video file
     out_vids = []
     fourcc = cv2.VideoWriter_fourcc(*encoder_codec)
+    print('encoder_codec:', encoder_codec)
     for seq in seq_list:
         curr_vid_name = os.path.splitext(os.path.basename(input_path))[0] + '_seq%02d.mp4' % seq.id
         curr_vid_path = os.path.join(output_dir, curr_vid_name)
+        print('for seq VideoWriter:', curr_vid_path, fourcc, fps, resolution)
         out_vids.append(cv2.VideoWriter(curr_vid_path, fourcc, fps, (resolution, resolution)))
 
     # For each frame in the target video
