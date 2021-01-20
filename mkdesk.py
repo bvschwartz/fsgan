@@ -1,24 +1,31 @@
 import os
 import json
 
+restyle_desk = '~/restyle/static'
+restyle_desk = './desk'
+restyle_desk = '/home/bruce/restyle/static'
 
 def create_desk():
     if os.path.exists(desk_path):
         print('desk already exists... remove please!')
         exit()
 
+    print('making desk', desk_path)
     os.mkdir(desk_path)
     os.mkdir(desk_path + '/inbox')
     os.mkdir(desk_path + '/outbox')
     os.mkdir(desk_path + '/www')
-    os.symlink('../../TARGET_PICS_122028', desk_path + '/TARGET_PICS_122028')
-    os.symlink('../../TARGET_SKINTONES_122029', desk_path + '/TARGET_SKINTONES_122029')
-    os.symlink('../../SOURCE_PICS', desk_path + '/SOURCE_PICS')
+    os.symlink(f'{restyle_desk}/TARGET_PICS_122028', desk_path + '/TARGET_PICS_122028')
+    os.symlink(f'{restyle_desk}/TARGET_SKINTONES_122029', desk_path + '/TARGET_SKINTONES_122029')
+    os.symlink(f'{restyle_desk}/SOURCE_m', desk_path + '/SOURCE_m')
+    os.symlink(f'{restyle_desk}/SOURCE_f', desk_path + '/SOURCE_f')
+    os.symlink(f'{restyle_desk}/demo/maniq1', desk_path + '/maniq1')
 
 def get_desk_pics(path):
     pics = []
     with os.scandir(f'{desk_path}/{path}') as it:
         for file in it:
+            print(f'looking at {file}')
             filename = file.name
             ext = os.path.splitext(filename)[1]
             #print('ext:', ext)
@@ -26,6 +33,9 @@ def get_desk_pics(path):
                 #print(filename)
                 pics.append(f'{path}/{filename}')
     return pics
+
+def get_desk_pic(path):
+    return [ f'{desk_path}/{path}' ]
 
 
 def create_inbox_items(sources, targets, id_postfix=""):
@@ -86,17 +96,21 @@ def create_html(sources, targets):
 
 
 
-#create_desk()
 desk_path = 'desk'
 desk_path = 'desk-4x9'
 desk_path = 'desk-4x6-skintone'
+desk_path = 'desk-maniq'
 
-sources = get_desk_pics(f'SOURCE_PICS')
+create_desk()
+
+#sources = get_desk_pics(f'SOURCE_PICS')
+sources = get_desk_pic(f'SOURCE_f/SOURCE_OLDA_1.jpg')
 
 #targets = get_desk_pics(f'TARGET_PICS_122028')
-targets = get_desk_pics(f'TARGET_SKINTONES_122029')
+#targets = get_desk_pics(f'TARGET_SKINTONES_122029')
+targets = get_desk_pics(f'maniq1')
 
-print(sources, targets)
-#create_inbox_items(sources, targets)
+print('sources:', sources, 'targets:', targets)
+create_inbox_items(sources, targets)
 
 create_html(sources, targets)
