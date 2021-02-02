@@ -4,10 +4,11 @@ import json
 restyle_desk = '~/restyle/static'
 restyle_desk = './desk'
 restyle_desk = '/home/bruce/restyle/static'
+restyle_desk = './desk-test'
 
 def create_desk():
     if os.path.exists(desk_path):
-        print('desk already exists... remove please!')
+        print(f'{desk_path} already exists... remove please!')
         exit()
 
     print('making desk', desk_path)
@@ -17,6 +18,7 @@ def create_desk():
     os.mkdir(desk_path + '/www')
     os.symlink(f'{restyle_desk}/TARGET_PICS_122028', desk_path + '/TARGET_PICS_122028')
     os.symlink(f'{restyle_desk}/TARGET_SKINTONES_122029', desk_path + '/TARGET_SKINTONES_122029')
+    os.symlink(f'{restyle_desk}/TARGET_MANIQ', desk_path + '/TARGET_MANIQ')
     os.symlink(f'{restyle_desk}/SOURCE_m', desk_path + '/SOURCE_m')
     os.symlink(f'{restyle_desk}/SOURCE_f', desk_path + '/SOURCE_f')
     os.symlink(f'{restyle_desk}/demo/maniq1', desk_path + '/maniq1')
@@ -29,8 +31,8 @@ def get_desk_pics(path):
             filename = file.name
             ext = os.path.splitext(filename)[1]
             #print('ext:', ext)
-            if ext == '.jpg':
-                #print(filename)
+            if ext == '.jpg' or ext == '.mp4':
+                print(filename)
                 pics.append(f'{path}/{filename}')
     return pics
 
@@ -100,15 +102,16 @@ desk_path = 'desk'
 desk_path = 'desk-4x9'
 desk_path = 'desk-4x6-skintone'
 desk_path = 'desk-maniq'
+desk_path = 'desk-test'
 
 create_desk()
 
-#sources = get_desk_pics(f'SOURCE_PICS')
-sources = get_desk_pic(f'SOURCE_f/SOURCE_OLDA_1.jpg')
+sources = get_desk_pics(f'SOURCE_f')
+#sources = get_desk_pic(f'SOURCE_f/SOURCE_OLDA_1.jpg')
 
 #targets = get_desk_pics(f'TARGET_PICS_122028')
 #targets = get_desk_pics(f'TARGET_SKINTONES_122029')
-targets = get_desk_pics(f'maniq1')
+targets = get_desk_pics(f'TARGET_MANIQ')
 
 print('sources:', sources, 'targets:', targets)
 create_inbox_items(sources, targets)

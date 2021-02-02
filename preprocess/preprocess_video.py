@@ -31,6 +31,7 @@ from fsgan.utils.temporal_smoothing import TemporalSmoothing
 from fsgan.utils.landmarks_utils import LandmarksHeatMapEncoder, smooth_landmarks_98pts
 from fsgan.utils.seg_utils import encode_binary_mask, remove_inner_mouth
 from fsgan.utils.batch import main as batch
+from fsgan.utils.img_utils import tensor2bgr
 print('importing done')
 
 import nvidia_smi
@@ -201,6 +202,9 @@ class VideoProcessBase(object):
         self.device, self.gpus = set_device(gpus, not cpu_only)
 
         # Load models
+        print(f'BVS device={self.device} gpus={gpus}')
+        print(f'BVS cache_pose={cache_pose} cache_landmarks={cache_landmarks} cache_segmentation={cache_segmentation}')
+        print(f'BVS pose_model={pose_model} lms_model={lms_model} seg_model={seg_model}')
         self.face_pose = load_model(pose_model, 'face pose', self.device) if cache_pose else None
         self.L = load_model(lms_model, 'face landmarks', self.device) if cache_landmarks else None
         self.S = load_model(seg_model, 'face segmentation', self.device) if cache_segmentation else None
@@ -349,7 +353,10 @@ class VideoProcessBase(object):
             for i, frame in enumerate(tqdm(in_vid_loader, unit='batches', file=sys.stdout)):
                 frame = frame.to(self.device)
                 H = self.L(frame)
+                print(f'BVS H={H.shape} type={type(H)}')
                 landmarks = self.heatmap_encoder(H)
+                print(f'BVS landmarks={landmarks.shape} type={type(landmarks)}')
+                #print(landmarks)
                 seq_landmarks.append(landmarks.cpu().numpy())
             seq_landmarks = np.concatenate(seq_landmarks)
 
@@ -400,12 +407,16 @@ class VideoProcessBase(object):
             encoded_segmentations = []
             pad_prev, pad_next = r, r   # This initialization is only relevant if there is a leftover from last batch
             for i, frame in enumerate(pbar):
+                #cv2.imwrite('./0-cropped.png', tensor2bgr(frame))
+                print(f'BVS frame={frame.shape} type={type(frame)}')
                 frame = frame.to(self.device)
 
                 # Compute segmentation
                 raw_segmentation = self.S(frame)
+                #cv2.imwrite('./0-raw.png', tensor2bgr(raw_segmentation))
                 segmentation = torch.cat((prev_segmentation, raw_segmentation), dim=0) \
                     if prev_segmentation is not None else raw_segmentation
+                #cv2.imwrite('./0-seg.png', tensor2bgr(segmentation))
                 if segmentation.shape[0] > r:
                     pad_prev, pad_next = r if prev_segmentation is None else 0, min(r, self.seg_batch_size - frame.shape[0])
                     segmentation = self.smooth_seg(segmentation, pad_prev=pad_prev, pad_next=pad_next)
@@ -414,6 +425,9 @@ class VideoProcessBase(object):
                     prev_segmentation = raw_segmentation[-(r * 2 - pad_next):]
 
                 mask = segmentation.argmax(1) == 1
+                #cv2.imwrite('0-mask.png', (mask.type(torch.uint8) * 255).permute(1, 2, 0).cpu().numpy())
+                #print(f'BVS mask={mask.shape} type={type(mask)}')
+                #torch.save(mask, 'mask.pt')
 
                 # Encode segmentation
                 for b in range(mask.shape[0]):
@@ -459,6 +473,8 @@ class VideoProcessBase(object):
         first_cropped_path = os.path.join(output_dir, os.path.splitext(os.path.basename(input_path))[0] +
                                           '_seq00' + os.path.splitext(input_path)[1])
         pose_file_path = os.path.join(output_dir, os.path.splitext(os.path.basename(input_path))[0] + self.pose_postfix)
+
+        print(f'paths: output_dir={output_dir}, det_file_path={det_file_path}, seq_file_path={seq_file_path}, first_cropped_path={first_cropped_path}, pose_file_path={pose_file_path}')
 
         # Create directory
         if not os.path.isdir(output_dir):

@@ -300,8 +300,10 @@ class FaceSwapping(VideoProcessBase):
                 appearance_map_loader = DataLoader(appearance_map, batch_size=self.batch_size, num_workers=1, pin_memory=True,
                                            drop_last=False, shuffle=False)
                 print(f'=> Face swapping: "{src_vid_seq_name}" -> "{tgt_vid_seq_name}"...')
-                print(f'start_index={seq.start_index} current_frame={current_frame}')
+                print(f'start_index={seq.start_index} len={len(seq)} current_frame={current_frame}')
+                print(f'TARGET SEQ: copy {seq.start_index - current_frame}')
                 self.video_renderer.write_frames(seq.start_index - current_frame)
+                print(f'TARGET SEQ: write {len(seq)}')
                 self.write_seq(seq, appearance_map_loader)
                 current_frame = seq.start_index + len(seq)
         else:
@@ -358,7 +360,7 @@ class FaceSwapping(VideoProcessBase):
 
             # Remove the background of the aligned face
             reenactment_tensor.masked_fill_(reenactment_background_mask_tensor, -1.0)
-            print('reenactment_tensor:', reenactment_tensor.size())
+            #print('reenactment_tensor:', reenactment_tensor.size())
             #cv2.imwrite('./0-reenactment.png', tensor2bgr(reenactment_tensor))
 
             # Soften target mask

@@ -224,6 +224,8 @@ class VideoRenderer(mp.Process):
 
     def _write_frames(self, frame_count):
         # E.g. Write frames as they are until the start of the sequence
+        if frame_count == 0:
+            return
         if self._verbose == 0:
             print(f'Debug: render {frame_count} frames (outside of seq)')
             for i in range(frame_count):
@@ -247,6 +249,9 @@ class VideoRenderer(mp.Process):
             if self._verbose == 0 and not self._output_crop:
                 # Read frame from input video
                 ret, full_frame_bgr = self._in_vid.read()
+                if full_frame_bgr is None:
+                    print(f'Failed to read frame {self._frame_count} from input video: "{self._in_vid_path}... skipping"')
+                    continue
                 assert full_frame_bgr is not None, \
                     f'Failed to read frame {self._frame_count} from input video: "{self._in_vid_path}"'
 

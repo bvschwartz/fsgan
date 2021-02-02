@@ -4,12 +4,15 @@ import time
 import json
 
 desk = './desk/'  # TODO: pass in this location
+#desk = './desk-maniq/'
+#desk = './desk-test/'
 inbox = desk + 'inbox'
 outbox = desk + 'outbox'
 image_dir = 'images/'
 
 class JobProcessor:
     def wait_get_job():
+        print('looking for jobs in:', inbox)
         while True:
             job = JobProcessor.get_job()
             if job is not None:
@@ -67,6 +70,7 @@ class JobProcessor:
 
             job['status'] = 'processing'
             job['swaps'] = []
+            target_type = job['target_type']
             JobProcessor.update_job(job)
 
             src_image = job['src_image']
@@ -97,7 +101,7 @@ class JobProcessor:
             job['status'] = 'complete'
             JobProcessor.update_job(job)
             jobEnd = time.time()
-            print(f'****** entire job took {jobEnd - jobStart}s src: {src_image}')
+            print(f'****** entire job took {jobEnd - jobStart}s src: {src_image} target: {target_type}')
 
 
 
