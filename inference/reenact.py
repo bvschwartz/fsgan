@@ -158,7 +158,7 @@ class FaceReenactment(VideoProcessBase):
                 self.Gr.load_state_dict(checkpoint['state_dict'])
             return
 
-        print('=> Finetuning the reenactment generator on: "%s"...' % os.path.basename(source_path))
+        print('=> reenact.py: Finetuning the reenactment generator on: "%s"...' % os.path.basename(source_path))
         torch.set_grad_enabled(True)
         self.Gr.train(True)
         img_transforms = img_lms_pose_transforms.Compose([Pyramids(2), ToTensor(), Normalize()])
