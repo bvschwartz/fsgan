@@ -372,6 +372,7 @@ class FaceSwapping(VideoProcessBase):
             inpainting_input_tensor = torch.cat((reenactment_tensor, eroded_tgt_mask.float()), dim=1)
             inpainting_input_tensor_pyd = create_pyramid(inpainting_input_tensor, 2)
             completion_tensor = self.Gc(inpainting_input_tensor_pyd)
+            # this is the masked face
             #cv2.imwrite('./1-completion.png', tensor2bgr(completion_tensor))
 
             # Blend faces
